@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #gameScreen {
+            width: 200px;
+            height: 200px;
+            background-color: red;
+            display: none;
+        }
+
+        #gameScreen.green {
+            background-color: green;
+        }
+    </style>
+    <title>Reactietijdspel</title>
+</head>
+<body>
+    <button id="startBtn" onclick="startGame()">Go</button>
+    <div id="gameScreen" onclick="checkTime()"></div>
+    <p id="result"></p>
+    <p id="topScores"></p>
+    <script>
+        let startTime, endTime;
+        let topScores = JSON.parse(localStorage.getItem('topScores')) || [];
+
+        function startGame() {
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('gameScreen').classList.add('green');
+                startTime = new Date();
+            }, Math.random() * 10000); // Random time between 0 and 10 seconds
+        }
+
+        function checkTime() {
+            if (document.getElementById('gameScreen').classList.contains('green')) {
+                endTime = new Date();
+                const reactionTime = endTime - startTime;
+
+                document.getElementById('result').innerHTML = `Je reactietijd is ${reactionTime} milliseconden`;
+
+                updateTopTimes(reactionTime);
+
+                document.getElementById('gameScreen').classList.remove('green');
+                document.getElementById('startBtn').style.display = 'block';
+                document.getElementById('gameScreen').style.display = 'none';
+            }
+        }
+
+        function updateTopTimes(reactionTime) {
+            topScores.push(reactionTime);
+            topScores.sort((a, b) => a - b);
+            topScores = topScores.slice(0, 5);
+
+            localStorage.setItem('topScores', JSON.stringify(topScores));
+
+            displayTopScores();
+        }
+
+        function displayTopScores() {
+            const topScoresElement = document.getElementById('topScores');
+            topScoresElement.innerHTML = '<strong>Top 5 Tijden:</strong><br>';
+
+            topScores.forEach((score, index) => {
+                topScoresElement.innerHTML += `${index + 1}. ${score} ms<br>`;
+            });
+        }
+    </script>
+</body>
+</html>
